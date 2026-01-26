@@ -13,5 +13,83 @@ datasource db {
   provider = "postgresql"
 }
 
+// Category Table
+model Category {
+  id           String     @id @default(uuid())
+  categoryName String     @unique
+  description  String     @db.Text
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  medicines    Medicine[]
+}
 
+// Medicine Table
+model Medicine {
+  id           String  @id @default(uuid())
+  name         String  @db.VarChar(255)
+  description  String  @db.Text
+  price        Float
+  stock        Int
+  image        String
+  manufacturer String
+  isActive     Boolean @default(true)
 
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  authorId String
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+  reviews    Review[]
+}
+
+// Order Table
+model Order {
+  id         String @id @default(uuid())
+  customerId String
+
+  status          OrderStatus @default(PLACED)
+  totalAmount     Float
+  shippingAddress String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  orderItems      OrderItem[]
+}
+
+// OrderItem Table
+model OrderItem {
+  id      String @id @default(uuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+
+  sellerId String
+  quantity Int
+  price    Float
+}
+
+// Review Table
+model Review {
+  id         String @id @default(uuid())
+  customerId String
+
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// Order enum
+enum OrderStatus {
+  PLACED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
