@@ -4,14 +4,14 @@ import auth, { UserRole } from "../../middlewares/auth";
 
 const router = Router();
 
-router.get("/orders", auth(UserRole.CUSTOMER), ordersController.getMyOrders);
-router.get("/orders/:id", auth(UserRole.CUSTOMER), ordersController.getOrderById);
+router.get("/orders", auth(UserRole.CUSTOMER, UserRole.ADMIN), ordersController.getMyOrders);
+router.get("/orders/:id", auth(UserRole.CUSTOMER, UserRole.ADMIN), ordersController.getOrderById);
 
-router.post("/orders", auth(UserRole.CUSTOMER), ordersController.createOrder);
+router.post("/orders", auth(UserRole.CUSTOMER, UserRole.ADMIN), ordersController.createOrder);
 
 // Seller
-router.get("/seller/orders", auth(UserRole.SELLER), ordersController.getSellerOrders);
-router.patch("/seller/orders/:id", auth(UserRole.SELLER), ordersController.updateOrderStatus);
+router.get("/seller/orders", auth(UserRole.SELLER, UserRole.ADMIN), ordersController.getSellerOrders);
+router.patch("/seller/orders/:id", auth(UserRole.SELLER, UserRole.ADMIN), ordersController.updateOrderStatus);
 
 
 export const orderRouter = router;

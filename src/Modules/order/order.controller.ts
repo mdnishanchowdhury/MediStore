@@ -127,12 +127,13 @@ const updateOrderStatus = async (req: Request, res: Response) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        if (!req.user || req.user.role !== 'SELLER') {
+        if (!req.user || (req.user.role !== 'SELLER' && req.user.role !== 'ADMIN')) {
             return res.status(403).json({
                 success: false,
-                message: "Only a seller can update the order status",
+                message: "Unauthorized to update order status",
             });
         }
+
         const result = await ordersService.updateOrderStatus(
             id as string,
             req.user.id,

@@ -9,9 +9,9 @@ router.get('/', categoryController.getAllCategories);
 router.get("/:id", categoryController.getCategoryById);
 
 
-router.post('/', auth(UserRole.ADMIN), categoryController.createCategory);
-router.put("/:id", auth(UserRole.ADMIN), categoryController.updateCategory);
-router.delete("/:id", auth(UserRole.ADMIN), categoryController.deleteCategory);
+router.post('/', auth(UserRole.ADMIN, UserRole.SELLER), categoryController.createCategory);
+router.put("/:id", auth(UserRole.ADMIN, UserRole.SELLER), categoryController.updateCategory);
+router.delete("/:id", auth(UserRole.ADMIN, UserRole.SELLER), categoryController.deleteCategory);
 
 
 export const categoryRouter = router;
