@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "prisma generate && tsup src/server.ts --format esm --target node20 --outDir dist",
+    "build": "prisma generate && npx tsup src/server.ts --format esm --target node20 --outDir dist",
     "start": "node dist/server.js",
     "dev": "npx tsx watch src/server.ts"
   },
