@@ -1,14 +1,147 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
-  output   = "../../generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model Category {
+  id           String     @id @default(uuid())
+  categoryName String     @unique
+  description  String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  medicines    Medicine[]
+}
+
+model Medicine {
+  id           String      @id @default(uuid())
+  name         String      @db.VarChar(255)
+  description  String
+  price        Float
+  stock        Int
+  image        String
+  manufacturer String
+  isActive     Boolean     @default(true)
+  categoryId   String
+  authorId     String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  category     Category    @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+  reviews      Review[]
+
+  @@index([categoryId])
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  customerId      String
+  status          OrderStatus @default(PLACED)
+  totalAmount     Float
+  shippingAddress String
+  phoneNumber     String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  orderItems      OrderItem[]
+
+  @@index([customerId])
+}
+
+model OrderItem {
+  id         String   @id @default(uuid())
+  orderId    String
+  medicineId String
+  sellerId   String
+  quantity   Int
+  price      Float
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  customerId String
+  medicineId String
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+
+  @@index([medicineId])
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          String?   @default("USER")
+  phone         String?
+  status        String?   @default("ACTIVE")
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+enum OrderStatus {
+  PLACED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
