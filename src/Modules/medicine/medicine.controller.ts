@@ -29,15 +29,18 @@ const createMedicine = async (req: Request, res: Response) => {
 
 const getAllMedicines = async (req: Request, res: Response) => {
     try {
-        const medicines = await medicinesService.getAllMedicines(req.query);
+        const result = await medicinesService.getAllMedicines(req.query);
+
         res.status(200).json({
             success: true,
-            data: medicines,
+            message: "Medicines fetched successfully",
+            data: result.data,
+            meta: result.meta,
         });
     } catch (error: any) {
         res.status(500).json({
             success: false,
-            message: error.message,
+            message: error.message || "Internal Server Error",
         });
     }
 };

@@ -37,7 +37,10 @@ const updateMedicine = async (
 };
 
 const getAllMedicines = async (query: any) => {
-    const { search, categoryId, minPrice, maxPrice } = query;
+    const { search, categoryId, minPrice, maxPrice, page = 1, limit = 9 } = query;
+    const pageNumber = Number(page) || 1;
+    const limitNumber = Number(limit) || 9;
+    const skip = (pageNumber - 1) * limitNumber;
 
     const where: Prisma.MedicineWhereInput = {
         isActive: true,
@@ -60,8 +63,10 @@ const getAllMedicines = async (query: any) => {
         if (maxPrice) where.price.lte = Number(maxPrice);
     }
 
-    return prisma.medicine.findMany({
+    const medicines = await prisma.medicine.findMany({
         where,
+        skip: skip,
+        take: limitNumber,
         include: {
             category: true,
             reviews: true,
@@ -70,6 +75,18 @@ const getAllMedicines = async (query: any) => {
             createdAt: "desc",
         },
     });
+
+    const total = await prisma.medicine.count({ where });
+
+    return {
+        data: medicines,
+        meta: {
+            total,
+            page: pageNumber,
+            limit: limitNumber,
+            totalPages: Math.ceil(total / limitNumber),
+        },
+    };
 };
 
 const getMedicineById = async (id: string) => {
