@@ -70,23 +70,13 @@ const getMedicineById = async (req: Request, res: Response) => {
 
 const updateMedicine = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const seller = req.user;
-
-        if (!seller) {
-            return res.status(401).json({ error: "Unauthorized!" });
-        }
-
         const { id } = req.params;
 
         if (!id || Array.isArray(id)) {
             return res.status(400).json({ error: "Invalid medicine id" });
         }
 
-        const updatedMedicine = await medicinesService.updateMedicine(
-            id,
-            seller.id,
-            req.body
-        );
+        const updatedMedicine = await medicinesService.updateMedicine(id, req.body);
 
         res.status(200).json({
             success: true,
@@ -113,20 +103,12 @@ const deleteMedicine = async (req: Request, res: Response) => {
             });
         }
 
-        const sellerId = req.user.id;
-
-        const result = await medicinesService.deleteMedicine(id, sellerId);
-
-        if (result.count === 0) {
-            return res.status(403).json({
-                success: false,
-                message: "Not authorized to delete this medicine",
-            });
-        }
+        const result = await medicinesService.deleteMedicine(id);
 
         res.status(200).json({
             success: true,
             message: "Medicine removed successfully",
+            data: result,
         });
     } catch (error: any) {
         res.status(400).json({

@@ -7,7 +7,7 @@ const router = Router();
 router.get("/orders", auth(UserRole.CUSTOMER, UserRole.ADMIN), ordersController.getMyOrders);
 router.get("/orders/:id", auth(UserRole.CUSTOMER, UserRole.ADMIN), ordersController.getOrderById);
 
-router.post("/orders", auth(UserRole.CUSTOMER, UserRole.ADMIN), ordersController.createOrder);
+router.post("/orders", auth(UserRole.CUSTOMER), ordersController.createOrder);
 
 // Seller
 router.get("/seller/orders", auth(UserRole.SELLER, UserRole.ADMIN), ordersController.getSellerOrders);

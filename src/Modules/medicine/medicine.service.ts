@@ -14,22 +14,18 @@ const createMedicine = async (data: Omit<Medicine, "id" | "createdAt" | "updated
 
 const updateMedicine = async (
     id: string,
-    sellerId: string,
     data: Partial<Omit<Medicine, "id" | "authorId" | "createdAt" | "updatedAt">>
 ) => {
-    const medicine = await prisma.medicine.findFirstOrThrow({
-        where: {
-            id,
-            authorId: sellerId,
-        },
-        select: {
-            id: true,
-            authorId: true,
-        },
+    const medicine = await prisma.medicine.findUnique({
+        where: { id },
+        select: { id: true },
     });
 
+    if (!medicine) {
+        throw new Error("Medicine not found");
+    }
     const updated = await prisma.medicine.update({
-        where: { id: medicine.id },
+        where: { id },
         data,
     });
 
@@ -99,16 +95,22 @@ const getMedicineById = async (id: string) => {
     });
 };
 
-const deleteMedicine = async (id: string, authorId: string) => {
-    return prisma.medicine.updateMany({
-        where: {
-            id,
-            authorId: authorId,
-        },
-        data: {
-            isActive: false,
-        },
+const deleteMedicine = async (id: string) => {
+    const medicine = await prisma.medicine.findUnique({
+        where: { id },
+        select: { id: true },
     });
+
+    if (!medicine) {
+        throw new Error("Medicine not found");
+    }
+
+    const deleted = await prisma.medicine.update({
+        where: { id },
+        data: { isActive: false },
+    });
+
+    return deleted;
 };
 
 export const medicinesService = {
