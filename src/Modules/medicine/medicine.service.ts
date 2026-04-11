@@ -113,10 +113,19 @@ const deleteMedicine = async (id: string) => {
     return deleted;
 };
 
+const getAllActiveMedicinesForSync = async () => {
+    return await prisma.medicine.findMany({
+        where: { isActive: true },
+        include: { category: true }
+    });
+};
+
+
 export const medicinesService = {
     createMedicine,
     getAllMedicines,
     updateMedicine,
     getMedicineById,
-    deleteMedicine
+    deleteMedicine,
+    getAllActiveMedicinesForSync
 };

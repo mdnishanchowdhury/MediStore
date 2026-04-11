@@ -5,8 +5,11 @@ import { medicinesController } from "./medicine.controller";
 const router = Router();
 
 // public
+router.get("/medicines/suggestions", medicinesController.getSmartSuggestions);
+router.get("/medicines/sync-all", medicinesController.syncExistingMedicines);
 router.get("/medicines", medicinesController.getAllMedicines);
 router.get("/medicines/:id", medicinesController.getMedicineById);
+
 
 // Seller management
 router.post("/seller/medicines", auth(UserRole.SELLER, UserRole.ADMIN), medicinesController.createMedicine);
